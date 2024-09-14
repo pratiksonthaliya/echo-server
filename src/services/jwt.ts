@@ -1,8 +1,10 @@
 import JWT from 'jsonwebtoken';
 import { User } from '@prisma/client';
 import { JWTUser } from '../interfaces';
+import * as dotenv from 'dotenv'
+dotenv.config();
 
-const JWT_SECRET = '$uper$ecret'
+const JWT_SECRET: any = process.env.JWT_SECRET ? process.env.JWT_SECRET : '$uper$ecret';
 
 class JWTService {
     public static generateTokenForUser(user: User) {
