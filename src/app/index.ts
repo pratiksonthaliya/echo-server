@@ -1,3 +1,4 @@
+import { mutations } from './post/mutations';
 import cors from 'cors';
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
@@ -26,6 +27,7 @@ export async function initServer() {
 
             type Mutation {
                 ${Post.mutations}
+                ${User.mutations}
             }
         `,
         resolvers: {
@@ -35,6 +37,7 @@ export async function initServer() {
             }, 
             Mutation: {
                 ...Post.resolvers.mutations, 
+                ...User.resolvers.mutations
             },
             ...Post.resolvers.extraResolvers,
             ...User.resolvers.extraResolvers
