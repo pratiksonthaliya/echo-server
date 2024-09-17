@@ -1,6 +1,7 @@
 import axios from "axios";
 import { prismaClient } from "../clients/db";
 import JWTService from "./jwt";
+import { redisClient } from "../clients/redis";
 
 interface GoogleTokenResult {
     iss?: string,
@@ -57,7 +58,12 @@ class UserService {
     }
 
     public static async getUserById(id: string){
-        return await prismaClient.user.findUnique({where: {id}});
+        const cachedUser = await redisClient.get(`USER: ${id}`);
+        if(cachedUser) return JSON.parse(cachedUser);
+
+        const user =  await prismaClient.user.findUnique({where: {id}});
+        await redisClient.set(`USER: ${id}`, JSON.stringify(user));
+        return user;
     }
 
     public static async followUser(from: string, to: string){

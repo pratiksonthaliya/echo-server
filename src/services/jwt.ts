@@ -4,7 +4,7 @@ import { JWTUser } from '../interfaces';
 import * as dotenv from 'dotenv'
 dotenv.config();
 
-const JWT_SECRET: any = process.env.JWT_SECRET ? process.env.JWT_SECRET : '$uper$ecret';
+const JWT_SECRET: string = process.env.JWT_SECRET as string;
 
 class JWTService {
     public static generateTokenForUser(user: User) {
