@@ -3,7 +3,8 @@ import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 
-import { User } from './user'
+import { Like } from './like';
+import { User } from './user';
 import { Post } from './post'; 
 import { GraphqlContext } from '../interfaces';
 import JWTService from '../services/jwt';
@@ -18,25 +19,30 @@ export async function initServer() {
         typeDefs: `
             ${User.types}
             ${Post.types}
+            ${Like.types}
 
             type Query {
                 ${User.queries}
                 ${Post.queries}
+                ${Like.queries}
             }
 
             type Mutation {
                 ${Post.mutations}
                 ${User.mutations}
+                ${Like.mutations}
             }
         `,
         resolvers: {
             Query: {
                 ...User.resolvers.queries,
                 ...Post.resolvers.queries,
+                ...Like.resolvers.queries
             }, 
             Mutation: {
                 ...Post.resolvers.mutations, 
-                ...User.resolvers.mutations
+                ...User.resolvers.mutations,
+                ...Like.resolvers.mutations
             },
             ...Post.resolvers.extraResolvers,
             ...User.resolvers.extraResolvers

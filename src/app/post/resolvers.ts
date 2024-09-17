@@ -33,7 +33,7 @@ const queries = {
 
 const mutations = {
     createPost: async (parent: any, {payload}: {payload: CreatePostPayload}, ctx: GraphqlContext) => {
-        if(!ctx.user) throw new Error("You are not Authenticated!");
+        if(!ctx.user || !ctx.user?.id) throw new Error("You are not Authenticated!");
 
         return PostService.createPost({
             ...payload,

@@ -28,16 +28,7 @@ model User {
   following Follows[] @relation("following")
 
   posts Post[]
-}
-
-model Follows {
-  follower   User   @relation("follower", fields: [followerId], references: [id])
-  followerId String
-
-  following   User   @relation("following", fields: [followingId], references: [id])
-  followingId String
-
-  @@id([followerId, followingId])
+  likes Like[]
 }
 
 model Post {
@@ -50,4 +41,29 @@ model Post {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  likes Like[] 
 }
+
+model Like {
+  id      String @id @default(cuid())
+  userId  String
+  postId  String
+
+  user    User @relation(fields: [userId], references: [id])
+  post    Post @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId])
+}
+
+model Follows {
+  follower   User   @relation("follower", fields: [followerId], references: [id])
+  followerId String
+
+  following   User   @relation("following", fields: [followingId], references: [id])
+  followingId String
+
+  @@id([followerId, followingId])
+}
+
+
