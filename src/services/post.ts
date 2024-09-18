@@ -38,6 +38,7 @@ class PostService {
         }));
 
         await redisClient.set('ALL_POSTS', JSON.stringify(posts));
+        await redisClient.expireat('ALL_POSTS', 36000);
 
         return posts;
     }

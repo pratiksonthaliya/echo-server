@@ -4,37 +4,37 @@ const prisma = new PrismaClient();
 
 export const resolvers = {
     queries: {
-        getPostLikes: async (_: any, { postId }: { postId: string }) => {
-            return prisma.like.findMany({
-                where: { postId },
+        getUserBookmarks: async (_: any, { userId }: { userId: string }) => {
+            return prisma.bookmark.findMany({
+                where: { userId },
                 include: { user: true, post: true }
             });
         }
     },
     mutations: {
-        toggleLike: async (_: any, { postId }: { postId: string }, ctx: any) => {
+        toggleBookmark: async (_: any, { postId }: { postId: string }, ctx: any) => {
             if(!ctx.user || !ctx.user.id) throw new Error('You are Unauthenticated');
 
             const userId = ctx.user.id; 
 
-            const existingLike = await prisma.like.findUnique({
+            const existingBookmark = await prisma.bookmark.findUnique({
                 where: { userId_postId: { userId, postId } },
                 include: {user: true, post: true}
             });
 
-            if (existingLike) {
-                const dislike = await prisma.like.delete({
+            if (existingBookmark) {
+                const removeBookmark = await prisma.bookmark.delete({
                     where: {userId_postId: { userId, postId }},
                     include: {user: true, post: true}
                 });
-                return { like: dislike, isLiked: false}
+                return { bookmark: removeBookmark, isBookmarked: false}
             } 
             else {
-                const newLike = await prisma.like.create({
+                const addBookmark = await prisma.bookmark.create({
                     data: { userId, postId },
                     include: { user: true, post: true }
                 });
-                return { isLiked: true, like: newLike };
+                return { isBookmarked: true, bookmark: addBookmark };
             }
         }
     }
