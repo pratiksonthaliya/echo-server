@@ -67,7 +67,7 @@ class UserService {
     }
 
     public static async followUser(from: string, to: string){
-        return prismaClient.follows.create({
+        return await prismaClient.follows.create({
             data: {
                 follower: { connect: {id: from}},
                 following: { connect: {id: to}}
@@ -76,7 +76,7 @@ class UserService {
     }
 
     public static async unFollowUser(from: string, to: string){
-        return prismaClient.follows.delete({
+        return await prismaClient.follows.delete({
             where: {
                 followerId_followingId: { 
                     followerId: from, followingId: to 
