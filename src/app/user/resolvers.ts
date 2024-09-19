@@ -19,8 +19,8 @@ const queries = {
         const user = await UserService.getUserById(id) 
         return user ;
     },
-    getUserById : async(parent: any, {id}: {id: string}, ctx: GraphqlContext) => await UserService.getUserById(id) 
-
+    getUserById : async(parent: any, {id}: {id: string}, ctx: GraphqlContext) => await UserService.getUserById(id),
+    getLikedPostsByUser: async (_: any, {id}: {id: string}) => await UserService.getLikedPostsByUser(id)
 }
 
 const mutations = {

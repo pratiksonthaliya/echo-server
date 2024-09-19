@@ -84,6 +84,22 @@ class UserService {
             }
         })
     }
+
+    public static async getLikedPostsByUser(id: string) {
+        return await prismaClient.post.findMany({
+          where: {
+            likes: {
+              some: {
+                userId: id,
+              },
+            },
+          },
+          include: {
+            author: true,  
+            likes: true,   
+          },
+        });
+    }
 }
 
 export default UserService;
