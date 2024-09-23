@@ -29,6 +29,7 @@ model User {
 
   posts Post[]
   likes Like[]
+  comments Comment[]
   bookmarks Bookmark[]
 }
 
@@ -44,6 +45,7 @@ model Post {
   updatedAt DateTime @updatedAt
 
   likes Like[] 
+  comments Comment[]
   bookmarks Bookmark[]
 }
 
@@ -56,6 +58,19 @@ model Like {
   post    Post @relation(fields: [postId], references: [id])
 
   @@unique([userId, postId])
+}
+
+model Comment {
+  id      String @id @default(cuid())
+  content String
+
+  userId  String
+  user    User @relation(fields: [userId], references: [id])
+  
+  postId  String
+  post    Post @relation(fields: [postId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 model Bookmark {

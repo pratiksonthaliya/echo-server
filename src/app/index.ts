@@ -4,6 +4,7 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 
 import { Like } from './like';
+import { Comment } from './comment';
 import { Bookmark } from './bookmark';
 import { User } from './user';
 import { Post } from './post'; 
@@ -21,12 +22,14 @@ export async function initServer() {
             ${User.types}
             ${Post.types}
             ${Like.types}
+            ${Comment.types}
             ${Bookmark.types}
 
             type Query {
                 ${User.queries}
                 ${Post.queries}
                 ${Like.queries}
+                ${Comment.queries}
                 ${Bookmark.queries}
             }
 
@@ -34,6 +37,7 @@ export async function initServer() {
                 ${Post.mutations}
                 ${User.mutations}
                 ${Like.mutations}
+                ${Comment.mutations}
                 ${Bookmark.mutations}
             }
         `,
@@ -42,12 +46,14 @@ export async function initServer() {
                 ...User.resolvers.queries,
                 ...Post.resolvers.queries,
                 ...Like.resolvers.queries,
+                ...Comment.resolvers.queries,
                 ...Bookmark.resolvers.queries,
             }, 
             Mutation: {
                 ...Post.resolvers.mutations, 
                 ...User.resolvers.mutations,
                 ...Like.resolvers.mutations,
+                ...Comment.resolvers.mutations,
                 ...Bookmark.resolvers.mutations,
             },
             ...Post.resolvers.extraResolvers,
