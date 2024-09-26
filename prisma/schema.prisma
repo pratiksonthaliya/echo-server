@@ -30,6 +30,7 @@ model User {
   posts Post[]
   likes Like[]
   comments Comment[]
+  commentLikes CommentLike[]
   bookmarks Bookmark[]
 }
 
@@ -70,7 +71,20 @@ model Comment {
   postId  String
   post    Post @relation(fields: [postId], references: [id])
 
+  commentLikes CommentLike[]
+
   createdAt DateTime @default(now())
+}
+
+model CommentLike {
+  id      String @id @default(cuid())
+  userId  String
+  commentId  String
+
+  user    User @relation(fields: [userId], references: [id])
+  comment    Comment @relation(fields: [commentId], references: [id])
+
+  @@unique([userId, commentId])
 }
 
 model Bookmark {

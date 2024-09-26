@@ -3,11 +3,12 @@ import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 
-import { Like } from './like';
-import { Comment } from './comment';
-import { Bookmark } from './bookmark';
 import { User } from './user';
 import { Post } from './post'; 
+import { Like } from './like';
+import { Comment } from './comment';
+import { CommentLike } from './commentLike';
+import { Bookmark } from './bookmark';
 import { GraphqlContext } from '../interfaces';
 import JWTService from '../services/jwt';
 
@@ -23,6 +24,7 @@ export async function initServer() {
             ${Post.types}
             ${Like.types}
             ${Comment.types}
+            ${CommentLike.types}
             ${Bookmark.types}
 
             type Query {
@@ -30,6 +32,7 @@ export async function initServer() {
                 ${Post.queries}
                 ${Like.queries}
                 ${Comment.queries}
+                ${CommentLike.queries}
                 ${Bookmark.queries}
             }
 
@@ -38,6 +41,7 @@ export async function initServer() {
                 ${User.mutations}
                 ${Like.mutations}
                 ${Comment.mutations}
+                ${CommentLike.mutations}
                 ${Bookmark.mutations}
             }
         `,
@@ -47,6 +51,7 @@ export async function initServer() {
                 ...Post.resolvers.queries,
                 ...Like.resolvers.queries,
                 ...Comment.resolvers.queries,
+                ...CommentLike.resolvers.queries,
                 ...Bookmark.resolvers.queries,
             }, 
             Mutation: {
@@ -54,6 +59,7 @@ export async function initServer() {
                 ...User.resolvers.mutations,
                 ...Like.resolvers.mutations,
                 ...Comment.resolvers.mutations,
+                ...CommentLike.resolvers.mutations,
                 ...Bookmark.resolvers.mutations,
             },
             ...Post.resolvers.extraResolvers,
