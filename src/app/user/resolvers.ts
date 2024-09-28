@@ -4,7 +4,13 @@ import { User } from '@prisma/client';
 import UserService from '../../services/user';
 import { redisClient } from '../../clients/redis';
 
-
+const shuffleArray = (array: User[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    }
+    return array;
+};
 
 const queries = {
     verifyGoogleToken: async(parent: any, {token}: {token : string}) => {
@@ -88,9 +94,12 @@ const extraResolvers = {
                 }
             }
 
-            await redisClient.set(`RECOMMANDED_USERS: ${ctx.user.id}`, JSON.stringify(userToBeRecommanded));
+            const shuffledRecommendations = shuffleArray(userToBeRecommanded);
+            const limitedRecommendations = userToBeRecommanded.slice(0, 10);
 
-            return userToBeRecommanded;
+            await redisClient.set(`RECOMMANDED_USERS: ${ctx.user.id}`, JSON.stringify(limitedRecommendations));
+
+            return limitedRecommendations;
         },
     }
 }
