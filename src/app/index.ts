@@ -18,6 +18,10 @@ export async function initServer() {
     app.use(express.json());
     app.use(cors());
 
+    app.get('/', (req, res) => {
+        res.status(200).json({message: 'Echo server is running'});
+    });
+
     const graphqlServer = new ApolloServer<GraphqlContext>({
         typeDefs: `
             ${User.types}
