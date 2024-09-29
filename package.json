@@ -3,23 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "pre-commit": [
-    "ts.check",
-    "build",
-    "add-build"
-  ],
   "scripts": {
-    "start": "nodemon src/index.ts",
-    "build": "rimraf build && tsc",
-    "ts.check": "tsc --project tsconfig.json",
-    "add-build": "git add build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "prisma generate",
+    "start": "node build/index",
+    "build": "tsc -p .",
+    "dev": "tsc-watch --onSuccess \"npm start \" "
   },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.6",
-    "pre-commit": "^1.2.2",
-    "rimraf": "^6.0.1",
+    "@types/cors": "^2.8.17",
     "tsc-watch": "^6.2.0",
     "typescript": "^5.5.4"
   },
@@ -27,6 +19,7 @@
     "@apollo/server": "^4.11.0",
     "@aws-sdk/client-s3": "^3.651.1",
     "@aws-sdk/s3-request-presigner": "^3.651.1",
+    "prisma": "^5.19.1",
     "@prisma/client": "5.19.1",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
@@ -35,7 +28,6 @@
     "express": "^4.19.2",
     "graphql": "^16.9.0",
     "ioredis": "^5.4.1",
-    "jsonwebtoken": "^9.0.2",
-    "prisma": "^5.19.1"
+    "jsonwebtoken": "^9.0.2"
   }
 }
