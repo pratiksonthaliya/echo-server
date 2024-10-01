@@ -1,5 +1,5 @@
 import { Post } from "@prisma/client";
-import { prismaClient } from "../../clients/db";
+import prismaClient from '../../clients/db';
 import { GraphqlContext } from "../../interfaces";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";

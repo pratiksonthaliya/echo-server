@@ -8,12 +8,16 @@ const JWT_SECRET: string = process.env.JWT_SECRET as string;
 
 class JWTService {
     public static generateTokenForUser(user: User) {
-        const payload:JWTUser = {
-            id: user?.id,
-            email: user?.email
-        };
-        const token = JWT.sign(payload, JWT_SECRET);
-        return token;
+        try {
+            const payload:JWTUser = {
+                id: user?.id,
+                email: user?.email
+            };
+            const token = JWT.sign(payload, JWT_SECRET);
+            return token;
+        } catch (error) {
+            return null;
+        }
     }
 
     public static decodeToken(token: string){

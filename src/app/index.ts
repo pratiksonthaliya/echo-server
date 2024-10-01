@@ -2,7 +2,6 @@ import cors from 'cors';
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-
 import { User } from './user';
 import { Post } from './post'; 
 import { Like } from './like';
@@ -12,11 +11,23 @@ import { Bookmark } from './bookmark';
 import { GraphqlContext } from '../interfaces';
 import JWTService from '../services/jwt';
 
+const corsOptions = {
+    origin: ['https://echo-media.vercel.app'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'],  // Ensure Authorization is included
+    credentials: true,  // If you are sending cookies or any authentication
+  };
+  
+
 export async function initServer() {     
     const app = express();
 
     app.use(express.json());
-    app.use(cors());
+    app.use(cors(corsOptions));
+    app.use((req, res, next) => {
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin'); // or 'unsafe-none'
+        next();
+    });
 
     app.get('/', (req, res) => {
         res.status(200).json({message: 'Echo server is running'});
@@ -76,9 +87,13 @@ export async function initServer() {
     app.use('/graphql', express.json(),  expressMiddleware(graphqlServer, 
         { 
             context: async ({req, res}) => {
-                return {
-                    user: req.headers.authorization ? JWTService.decodeToken(req.headers.authorization.split('Bearer ')[1]) : undefined
+                const authHeader = req.headers.authorization || '';
+                const token = authHeader.split('Bearer ')[1];
+                if (token) {
+                    const user = JWTService.decodeToken(token) ?? null; 
+                    return { user };
                 }
+                return {};
             }
         }
     ));

@@ -13,37 +13,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
-const db_1 = require("../clients/db");
+const db_1 = __importDefault(require("../clients/db"));
 const jwt_1 = __importDefault(require("./jwt"));
 const redis_1 = require("../clients/redis");
 class UserService {
     static verifyGoogleAuthToken(token) {
         return __awaiter(this, void 0, void 0, function* () {
-            const googleToken = token;
-            const googleOAuthURL = new URL('https://oauth2.googleapis.com/tokeninfo');
-            googleOAuthURL.searchParams.set('id_token', googleToken);
-            const { data } = yield axios_1.default.get(googleOAuthURL.toString(), {
-                responseType: 'json'
-            });
-            const user = yield db_1.prismaClient.user.findUnique({
-                where: { email: data.email }
-            });
-            if (!user) {
-                yield db_1.prismaClient.user.create({
-                    data: {
-                        email: data.email,
-                        firstName: data.given_name,
-                        lastName: data.family_name,
-                        profileImageUrl: data.picture
-                    }
+            try {
+                const googleToken = token;
+                const googleOAuthURL = new URL('https://oauth2.googleapis.com/tokeninfo');
+                googleOAuthURL.searchParams.set('id_token', googleToken);
+                const { data } = yield axios_1.default.get(googleOAuthURL.toString(), {
+                    responseType: 'json'
                 });
+                const user = yield db_1.default.user.findUnique({
+                    where: { email: data.email }
+                });
+                if (!user) {
+                    yield db_1.default.user.create({
+                        data: {
+                            email: data.email,
+                            firstName: data.given_name,
+                            lastName: data.family_name,
+                            profileImageUrl: data.picture
+                        }
+                    });
+                }
+                const userInDb = yield db_1.default.user.findUnique({ where: { email: user === null || user === void 0 ? void 0 : user.email } });
+                if (!userInDb) {
+                    throw new Error('User with email not found');
+                }
+                const userToken = yield jwt_1.default.generateTokenForUser(userInDb);
+                return userToken;
             }
-            const userInDb = yield db_1.prismaClient.user.findUnique({ where: { email: user === null || user === void 0 ? void 0 : user.email } });
-            if (!userInDb) {
-                throw new Error('User with email not found');
+            catch (error) {
+                console.error('Error verifying Google auth token:', error);
+                throw new Error('Authentication failed');
             }
-            const userToken = yield jwt_1.default.generateTokenForUser(userInDb);
-            return userToken;
         });
     }
     static getUserById(id) {
@@ -51,14 +57,14 @@ class UserService {
             const cachedUser = yield redis_1.redisClient.get(`USER: ${id}`);
             if (cachedUser)
                 return JSON.parse(cachedUser);
-            const user = yield db_1.prismaClient.user.findUnique({ where: { id } });
+            const user = yield db_1.default.user.findUnique({ where: { id } });
             yield redis_1.redisClient.set(`USER: ${id}`, JSON.stringify(user));
             return user;
         });
     }
     static followUser(from, to) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.prismaClient.follows.create({
+            return yield db_1.default.follows.create({
                 data: {
                     follower: { connect: { id: from } },
                     following: { connect: { id: to } }
@@ -68,7 +74,7 @@ class UserService {
     }
     static unFollowUser(from, to) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.prismaClient.follows.delete({
+            return yield db_1.default.follows.delete({
                 where: {
                     followerId_followingId: {
                         followerId: from, followingId: to
@@ -79,7 +85,7 @@ class UserService {
     }
     static getLikedPostsByUser(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield db_1.prismaClient.post.findMany({
+            return yield db_1.default.post.findMany({
                 where: {
                     likes: {
                         some: {

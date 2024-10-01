@@ -24,11 +24,21 @@ const comment_1 = require("./comment");
 const commentLike_1 = require("./commentLike");
 const bookmark_1 = require("./bookmark");
 const jwt_1 = __importDefault(require("../services/jwt"));
+const corsOptions = {
+    origin: ['https://echo-media.vercel.app'],
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'], // Ensure Authorization is included
+    credentials: true, // If you are sending cookies or any authentication
+};
 function initServer() {
     return __awaiter(this, void 0, void 0, function* () {
         const app = (0, express_1.default)();
         app.use(express_1.default.json());
-        app.use((0, cors_1.default)());
+        app.use((0, cors_1.default)(corsOptions));
+        app.use((req, res, next) => {
+            res.setHeader('Cross-Origin-Opener-Policy', 'same-origin'); // or 'unsafe-none'
+            next();
+        });
         app.get('/', (req, res) => {
             res.status(200).json({ message: 'Echo server is running' });
         });
@@ -65,9 +75,14 @@ function initServer() {
         yield graphqlServer.start();
         app.use('/graphql', express_1.default.json(), (0, express4_1.expressMiddleware)(graphqlServer, {
             context: (_a) => __awaiter(this, [_a], void 0, function* ({ req, res }) {
-                return {
-                    user: req.headers.authorization ? jwt_1.default.decodeToken(req.headers.authorization.split('Bearer ')[1]) : undefined
-                };
+                var _b;
+                const authHeader = req.headers.authorization || '';
+                const token = authHeader.split('Bearer ')[1];
+                if (token) {
+                    const user = (_b = jwt_1.default.decodeToken(token)) !== null && _b !== void 0 ? _b : null;
+                    return { user };
+                }
+                return {};
             })
         }));
         return app;

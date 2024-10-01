@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
-const db_1 = require("../../clients/db");
+const db_1 = __importDefault(require("../../clients/db"));
 const user_1 = __importDefault(require("../../services/user"));
 const redis_1 = require("../../clients/redis");
 const shuffleArray = (array) => {
@@ -58,9 +58,9 @@ const mutations = {
 };
 const extraResolvers = {
     User: {
-        posts: (parent) => db_1.prismaClient.post.findMany({ where: { author: { id: parent.id } } }),
+        posts: (parent) => db_1.default.post.findMany({ where: { author: { id: parent.id } } }),
         follower: (parent) => __awaiter(void 0, void 0, void 0, function* () {
-            const result = yield db_1.prismaClient.follows.findMany({
+            const result = yield db_1.default.follows.findMany({
                 where: { following: { id: parent.id } },
                 include: {
                     follower: true,
@@ -69,7 +69,7 @@ const extraResolvers = {
             return result.map((el) => el.follower);
         }),
         following: (parent) => __awaiter(void 0, void 0, void 0, function* () {
-            const result = yield db_1.prismaClient.follows.findMany({
+            const result = yield db_1.default.follows.findMany({
                 where: { follower: { id: parent.id } },
                 include: {
                     following: true
@@ -84,7 +84,7 @@ const extraResolvers = {
             const cacheValue = yield redis_1.redisClient.get(`RECOMMANDED_USERS: ${ctx.user.id}`);
             if (cacheValue)
                 return JSON.parse(cacheValue);
-            const myFollowings = yield db_1.prismaClient.follows.findMany({
+            const myFollowings = yield db_1.default.follows.findMany({
                 where: {
                     follower: { id: ctx.user.id },
                 },

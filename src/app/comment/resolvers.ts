@@ -1,4 +1,4 @@
-import { prismaClient } from '../../clients/db';
+import prismaClient from '../../clients/db';
 
 export const resolvers = {
     queries: {

@@ -8,13 +8,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
-const db_1 = require("../../clients/db");
+const db_1 = __importDefault(require("../../clients/db"));
 exports.resolvers = {
     queries: {
         getCommentsByPost: (_1, _a) => __awaiter(void 0, [_1, _a], void 0, function* (_, { postId }) {
-            return yield db_1.prismaClient.comment.findMany({
+            return yield db_1.default.comment.findMany({
                 where: { postId },
                 include: { user: true } // Include author details
             });
@@ -25,20 +28,20 @@ exports.resolvers = {
             if (!ctx.user || !ctx.user.id)
                 throw new Error('You are Unauthenticated');
             const userId = ctx.user.id;
-            const postExists = yield db_1.prismaClient.post.findUnique({
+            const postExists = yield db_1.default.post.findUnique({
                 where: { id: postId }
             });
             if (!postExists) {
                 throw new Error('Post not found');
             }
-            const comment = yield db_1.prismaClient.comment.create({
+            const comment = yield db_1.default.comment.create({
                 data: {
                     content,
                     post: { connect: { id: postId } },
                     user: { connect: { id: ctx.user.id } }
                 }
             });
-            return yield db_1.prismaClient.comment.findUnique({
+            return yield db_1.default.comment.findUnique({
                 where: { id: comment.id },
                 include: { user: true }
             });

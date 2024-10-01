@@ -8,8 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const db_1 = require("../clients/db");
+const db_1 = __importDefault(require("../clients/db"));
 const redis_1 = require("../clients/redis");
 class PostService {
     static createPost(data) {
@@ -18,7 +21,7 @@ class PostService {
             if (rateLimitFlag) {
                 return null;
             }
-            const post = yield db_1.prismaClient.post.create({
+            const post = yield db_1.default.post.create({
                 data: {
                     content: data.content,
                     imageURL: data.imageURL,
@@ -36,7 +39,7 @@ class PostService {
             const cachedPosts = yield redis_1.redisClient.get('ALL_POSTS');
             if (cachedPosts)
                 return JSON.parse(cachedPosts);
-            const posts = yield db_1.prismaClient.post.findMany({ orderBy: { createdAt: 'desc' } });
+            const posts = yield db_1.default.post.findMany({ orderBy: { createdAt: 'desc' } });
             const postsWithFormattedDates = posts.map(post => (Object.assign(Object.assign({}, post), { createdAt: post.createdAt.toISOString(), updatedAt: post.updatedAt.toISOString() })));
             yield redis_1.redisClient.set('ALL_POSTS', JSON.stringify(posts));
             yield redis_1.redisClient.expireat('ALL_POSTS', 36000);

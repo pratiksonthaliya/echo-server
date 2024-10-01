@@ -1,116 +1,93 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+  provider        = "prisma-client-js"
+  // output          = "./generated/client"
   previewFeatures = ["driverAdapters"]
-  // output   = "./generated/client"
+  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-// No password field b/c we will use googleAuth
 model User {
-  id              String  @id @default(cuid())
+  id              String        @id @default(cuid())
   firstName       String
   lastName        String?
-  email           String  @unique
+  email           String        @unique
   profileImageUrl String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  followers Follows[] @relation("follower")
-  following Follows[] @relation("following")
-
-  posts Post[]
-  likes Like[]
-  comments Comment[]
-  commentLikes CommentLike[]
-  bookmarks Bookmark[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  bookmarks       Bookmark[]
+  comments        Comment[]
+  commentLikes    CommentLike[]
+  followers       Follows[]     @relation("follower")
+  following       Follows[]     @relation("following")
+  likes           Like[]
+  posts           Post[]
 }
 
 model Post {
-  id       String  @id @default(cuid())
-  content  String
-  imageURL String?
-
-  author   User   @relation(fields: [authorId], references: [id])
-  authorId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  likes Like[] 
-  comments Comment[]
+  id        String     @id @default(cuid())
+  content   String
+  imageURL  String?
+  authorId  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   bookmarks Bookmark[]
+  comments  Comment[]
+  likes     Like[]
+  author    User       @relation(fields: [authorId], references: [id])
 }
 
 model Like {
-  id      String @id @default(cuid())
-  userId  String
-  postId  String
-
-  user    User @relation(fields: [userId], references: [id])
-  post    Post @relation(fields: [postId], references: [id])
+  id     String @id @default(cuid())
+  userId String
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
 
   @@unique([userId, postId])
 }
 
 model Comment {
-  id      String @id @default(cuid())
-  content String
-
-  userId  String
-  user    User @relation(fields: [userId], references: [id])
-  
-  postId  String
-  post    Post @relation(fields: [postId], references: [id])
-
+  id           String        @id @default(cuid())
+  content      String
+  userId       String
+  postId       String
+  createdAt    DateTime      @default(now())
+  post         Post          @relation(fields: [postId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
   commentLikes CommentLike[]
-
-  createdAt DateTime @default(now())
 }
 
 model CommentLike {
-  id      String @id @default(cuid())
-  userId  String
-  commentId  String
-
-  user    User @relation(fields: [userId], references: [id])
-  comment    Comment @relation(fields: [commentId], references: [id])
+  id        String  @id @default(cuid())
+  userId    String
+  commentId String
+  comment   Comment @relation(fields: [commentId], references: [id])
+  user      User    @relation(fields: [userId], references: [id])
 
   @@unique([userId, commentId])
 }
 
 model Bookmark {
-  id      String @id @default(cuid())
-  userId  String
-  postId  String
-
-  user    User @relation(fields: [userId], references: [id])
-  post    Post @relation(fields: [postId], references: [id])
-
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
   createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, postId])
 }
 
 model Follows {
-  follower   User   @relation("follower", fields: [followerId], references: [id])
-  followerId String
-
-  following   User   @relation("following", fields: [followingId], references: [id])
+  followerId  String
   followingId String
+  follower    User   @relation("follower", fields: [followerId], references: [id])
+  following   User   @relation("following", fields: [followingId], references: [id])
 
   @@id([followerId, followingId])
 }
-
-
